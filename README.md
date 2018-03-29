@@ -16,7 +16,7 @@
 
   # run the following npm scripts to learn webpack2
 
-  npm run entry
+  # exampale : npm run entry
   
   "scripts": {
     "entry": "node ./command.js -f=entry",
