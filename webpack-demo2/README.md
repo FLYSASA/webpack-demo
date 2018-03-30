@@ -22,3 +22,75 @@ npm install -g webpack
 //安装到你的项目目录
 npm install --save-dev webpack
 ```
+
+#### 使用前的准备
+1.在文件夹中创建一个package.json文件,这是一个标准的npm说明文件,里面蕴含了丰富的信息,包括当前项目的依赖模块,自定义的脚本任务等等.在使用`npm init`命令可以自动创建这个package.json文件
+```
+npm init
+//如果不准备在npm上传项目的话可以直接使用默认设置
+npm init -y
+```
+
+2.package.json文件以及就绪,我们在本项目中安装webpack作为依赖包
+```javascript
+//安装webpack
+npm install --save-dev webpack
+```
+
+3.回到之前的空文件,并在里面创建两个文件夹,app和pubulic,app文件夹用来存放原始数据和我们将写的JavaScript模块,dest文件夹用来存放之后供浏览器读取的文件(包括使用webpack打包生成的js文件以及一个`index.html`文件).接下来我们再创建三个文件
+- index.html --放在dest文件夹中
+- Greeter.js --放在app文件夹中
+- main.js --放在app文件夹中
+项目结构如图所示:
+![](https://upload-images.jianshu.io/upload_images/1031000-976ba1a06fd0702f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/347)
+
+我们在index.html文件中写入最基础的html代码,它在这里的目的在于引入打包后的js文件(这里我们先把打包后的js文件命名为bundle.js)
+
+```html
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Webpack Sample Project</title>
+  </head>
+  <body>
+    <div id='root'>
+    </div>
+    <script src="bundle.js"></script>
+  </body>
+</html>
+```
+
+我们在`greeter.js`中定义一个返回包含问候信息的html元素的函数,并依据commonjs规范导出这个函数为一个模块:
+```javascript
+// Greeter.js
+module.exports = function() {
+  var greet = document.createElement('div');
+  greet.textContent = "Hi there and greetings!";
+  return greet;
+};
+```
+
+main.js文件中我们写入下述代码,可以用greeter模块返回的节点插入页面
+```javascript
+//main.js 
+const greeter = require('./Greeter.js');
+document.querySelector("#root").appendChild(greeter());
+```
+
+### 正式使用webpack
+webpack可以在终端使用,基本的使用方法如下:
+```javascript
+# {extry file}处填写入口文件的路径,本文中就是上述main.js的路径
+# {destination for bundle file}处填写打包文件的存放路径,这个路径是相对webpack-project的路径
+# 填写路径的时候不用添加{}
+webpack {entry file} {destination for bundle file}
+```
+
+指定入口文件后,webpack将自动识别项目所依赖的其他文件,不过需要注意的是如果你的webpack不是全局安装,那么当你在终端中使用此命令时,需要额外指定其在node_modules中的地址,继续上面的例子,在终端输入命令
+```javascript
+# webpack非全局安装的情况
+node_moduls/.bin/webpack app/main.js
+```
+
