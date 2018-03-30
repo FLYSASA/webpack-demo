@@ -198,7 +198,7 @@ module.exports = {
   },
   devServer: {
     contentBase: './dist',  //本地服务器所加载的页面所在的页面
-    historyApiFallback: true, //跳转到html
+    historyApiFallback: true, //不跳转到
     inline: true //实时刷新
   }
 }
@@ -220,4 +220,236 @@ module.exports = {
 #### 鼎鼎大名的loaders登场!
 `loaders`是`webpack`提供的最激动人心的功能之一了,通过使用不同的`loader`,`webpack`有能力调用外部的脚本或工具,实现对不同格式的文件的处理,比如说分析转换scss为css,或把下一代的js文件(ES6 ES7)转换为现代兼容浏览器的js文件,对React的开发而言,合适的Loaders可以把React中用到的JSX文件转换为js文件
 
-loaders需要单独安装并且需要在`webpack.config.js`中的modules关键字下进行配置,Loaders的配置包括以下几个方面: 
+loaders需要单独安装并且需要在`webpack.config.js`中的module.rules关键字下进行配置,Loaders的配置包括以下几个方面: 
+
+- `test`: 一个用于匹配loaders所处理文件的扩展名的正则表达式(必须)
+- `use`: loader的名称(必须)
+- `include/exclude`: 手动添加必须处理的文件(文件夹)或屏蔽不需要处理的文件(文件夹)(可选)
+- `query`: 为loaders提供额外的设置选项(可选)
+
+不过在配置loader之前,我们把`greeter.js`里的问候消息放在单独的JSON文件里,并通过合适的配置是greeter.js可以读取该JSON文件的值,各文件修改后的代码如下:
+
+在app文件夹中创建带有问候信息的JSON文件(命名为config.json)
+```json
+{
+  "greetText": "Hi memeda from JSON!"
+}
+```
+
+更新后的greeter.js
+
+```javascript
+var config = require('./config.json')   //config是一个对象
+module.exports = function(){
+  var greet = document.createElement('div')
+  greet.textContent = config.greetText
+  return greet
+}
+```
+> 注意:由于`webpack3.*/webpack2.*`已经内置可处理JSON文件,这里我们无需在添加`webpack1.*`需要的`json-loader`。在看如何具体使用loader之前我们先看看Babel是什么？
+
+### Babel
+Babel其实是一个编译javascript的平台,他可以编译代码帮你达到以下目的:
+- 让你能使用最新的javascript代码(ES6 ES7...),而不用关心标准是否被当前的浏览器完全支持
+- 让你能使用基于javascript进行了拓展的语言,比如React的JSX
+
+#### Bable的安装与配置
+Babel其实是几个模块化的包,其核心功能位于称为`babel-core`的npm包中,webpack可以把其不同的包整合在一起使用,对于每一个你需要的功能或拓展,你都需要安装单独的包(用的最多的是解析ES6的`babel-preset-env`包和解析JSX的`babel-preset-react`)
+
+我们先来一次性安装这些依赖包
+```
+//npm一次性安装多个依赖模块,模块之间用空格隔开
+npm install --save-dev babel-core babel-loader babel-preset-env babel-preset-react
+```
+
+在`webpack`中配置Babel的方法如下:
+```javascript
+const path = require('path')
+module.exports = {
+  devtool: 'eval-source-map',   //调试工具 
+  entry: './app/main.js',     //唯一入口文件
+  output: {
+    path: path.resolve(__dirname,'dist'),
+    filename: 'bundle.js'
+  },
+  devServer: {
+      contentBase: "./dist", //本地服务器所加载的页面所在的目录,
+      historyApiFallback: true,  //不跳转
+      inline: true   //实时刷新
+  },
+  module: {
+    rules: [
+      {
+        test: /\.jsx|\.js$/,
+        use:{loader: 'babel-loader',options: { presets: ['env','react']} },
+        exclude: /node_modules/
+      }
+    ]
+  }
+}
+```
+现在你的webpack的配置已经允许你使用ES6以及JSX的语法了,继续使用上面的例子进行测试,不过这次我们会使用React,记得先安装React和React-DOM
+```
+npm install --save react react-dom
+```
+接下来我们使用ES6的语法,更新`greeter.js`并返回一个React组件
+```javascript
+import React, {Component} from 'react'
+import config from './config.json';
+
+class Greeter extends Component{
+  render() {
+    return (
+      <div>
+        {config.greetText}
+      </div>
+    );
+  }
+}
+export default Greeter
+
+```
+
+修改`main.js`如下,使用ES6的模板定义和渲染greeter模块
+```javascript
+import React from 'react';
+import {render} from 'react-dom';
+import Greeter from './Greeter';
+
+render(<Greeter />, document.getElementById('root'));
+```
+重新使用`npm start`打包,如果之前打开的本地服务器没有关闭,你应该可以在localhost:8080下看到与之前一样的内容,这说明,react和es6被正常打包了.
+
+
+### Babel的配置
+babel其实完全可以在`webpack.config.js`中进行配置,但是考虑到babel具有非常多的配置选项,在单一的`webpack.config.js`文件中进行配置往往使得这个文件闲的太复杂,因此一些开发者支持把babel的配置选项放在一个单独的名为".babelrc"的配置文件中.我们现在的babel的配置并不软复杂,不过之后我们会再加一些东西,因此我们就提取出相关部分,分两个配置文件进行配置(webpack会自动调用`.babelrc`里的babel配置选项),如下:
+```javascript
+const path = require('path')
+module.exports = {
+  devtool: 'eval-source-map',
+  entry: './app/main.js',
+  output: {
+    path: path.resolve(__dirname,'dist'),
+    filename: 'bundle.js'
+  },
+  devServer: {
+    contentBase: "./public",//本地服务器所加载的页面所在的目录
+    historyApiFallback: true,//不跳转
+    inline: true//实时刷新    
+  },
+  module: {
+    rules: [
+      {test: /(\.jsx|\.js)$/ ,use: {'babel-loader'},exclude: /node_modules/ }
+    ]
+  }
+}
+```
+
+```
+//.babelrc
+{
+  "presets": ["react","env"]
+}
+```
+`npm start`启动
+
+到目前为止,我们已经知道了,对于模块,webpack能提供非常强大的处理功能,那么哪些是模块呢?
+
+### 一切皆模块
+webpack有一个不可不说的有点,他把所有的文件都当做模块处理,JavaScript代码,css和fonts以及图片等等通过合适的loader都可以被处理.
+
+#### CSS
+webpack提供两个工具处理样式表,`css-loader`和`style-loader`,二者处理的任务不同,`css-loader`使你能后使用类似`@import`和`url(...)`的方法实现`require`的功能,`style-loader`将所有的计算后的样式加入页面中,二者组合在一起使你能够把样式表嵌入webpack打包后的js文件中.
+
+继续上面的例子
+```
+//安装
+npm install --save-dev style-loader css-loader
+```
+
+```javascript
+//使用
+const path = require('path')
+module.exports = {
+  ...
+  module: {
+    rules: [
+      {test:/(\.jsx|\.js)$/,use: 'babel-loader',exclude: /node_modules/},
+      {test:/\.css$/,use: ['babel-loader','css-loader']}
+    ]
+  }
+}
+```
+> 注意这里同一个文件引入多个loader的方法
+
+接下来在app文件夹里创建一个名为`main.css`的文件,对一些元素设置样式
+```css
+/* main.css */
+html {
+  box-sizing: border-box;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6, p, ul {
+  margin: 0;
+  padding: 0;
+}
+```
+我们这里例子用到的`webpack`只有单一的入口,其他的模块需要通过`import`,`require`,`url`等于入口文件建立其关联,为了让webpack能找到`main.css`文件,我们把它导入`main.js`中,如下:
+```js
+//main.js
+import React from 'react';
+import {render} from 'react-dom';
+import Greeter from './Greeter';
+
+import './main.css';  //使用import实现require的功能
+
+render(<Greeter />, document.getElementById('root'));
+```
+> 通常情况下css和js打包到同一个文件中,并不会打包到一个单独的css文件,不过通过合适的配置webpack也可以把css打包为单独的文件.
+
+上面的代码说明webpack是怎么把css当做模块看待的,咱们继续看一个更加真实的css模块实践.
+
+### css module
+在过去的一些年里,javascript通过一些新的语言特性,更好的工具已经更好的事件方法(比如说模块化)
+发展的非常迅速.模块是的开发者把复杂的代码转化为小的,干净的,依赖声明明确的单元,配合优化工具,依赖管理和加载管理可以自动完成.
+
+不过前端的另外一部分,css发展就相对慢一些,大多的样式表却充满了全局类别,维护和修改都非常困难.
+
+被称为`css modules`的技术意在把js的模块化思想带入css中来,通过css模块,所有的类名,动画名默认都只作用于当前模块.webpack对css模块化提供了非常好的支持,只需要在`css-loader`中进行简单配置即可,然后就可以直接把css类名传递到组件的代码中,这样做有效避免了全局污染,具体代码如下:
+
+```js
+const path = require('path')
+module.exports = {
+  ...
+  module: {
+    rules: [
+      {test:/(\.jsx|\.js)$/,use:'babel-loader',exclude: /node_modules/},
+      {
+        test:/\.css$/,
+        use:[
+          {
+            loader: 'style-loader',
+          },{
+            loader:'css-loader',
+            options:{
+              modules: true,  //指定启用css modules
+              localIdentName: '[name]__[local]--[hash:base64:5]' //指定css类名的格式
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
