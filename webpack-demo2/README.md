@@ -11,4 +11,14 @@
 webpack可以看做是模块打包机:它做的事情,分析你的项目结构,找到JavaScript模块以及其他的一些浏览器不能直接运行的扩展语言(scss,TypeScript等),并将其转换和打包为合适的格式供浏览器使用
 
 webpack的工作方式是: 把你的项目当做一个整体,通过一个给定的主文件(如index.js),webpack将从这个文件开始找到你的项目的所有依赖文件,使用loaders处理它们,最后打包为一个()或多个浏览器可识别的JavaScript文件.
-[](https://upload-images.jianshu.io/upload_images/1031000-160bc667d3b6093a.png?imageMogr2/auto-orient/)
+![](https://upload-images.jianshu.io/upload_images/1031000-160bc667d3b6093a.png?imageMogr2/auto-orient/)
+
+### 开始使用webpack
+#### 安装
+webpack可以使用npm安装,新建一个空练习文件夹(命名webpack-project),在终端中转到该文件夹目录,执行下述指令就可以完成安装:
+```avascript
+//全局安装
+npm install -g webpack
+//安装到你的项目目录
+npm install --save-dev webpack
+```
