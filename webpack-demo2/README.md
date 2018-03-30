@@ -44,7 +44,7 @@ npm install --save-dev webpack
 项目结构如图所示:
 ![](https://upload-images.jianshu.io/upload_images/1031000-976ba1a06fd0702f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/347)
 
-我们在index.html文件中写入最基础的html代码,它在这里的目的在于引入打包后的js文件(这里我们先把打包后的js文件命名为bundle.js)
+我们在index.html文件中写入最基础的html代码,它在这里的目的在于引入打包后的js文件(这里我们先把打包后的js文件命名为main.js)
 
 ```html
 <!-- index.html -->
@@ -57,7 +57,7 @@ npm install --save-dev webpack
   <body>
     <div id='root'>
     </div>
-    <script src="bundle.js"></script>
+    <script src="main.js"></script>
   </body>
 </html>
 ```
@@ -75,8 +75,8 @@ module.exports = function() {
 main.js文件中我们写入下述代码,可以用greeter模块返回的节点插入页面
 ```javascript
 //main.js 
-const greeter = require('./Greeter.js');
-document.querySelector("#root").appendChild(greeter());
+const greeter = require('./Greeter.js');   //require()得到的是一个函数
+document.querySelector("#root").appendChild(greeter());   //所以greeter需要加括号
 ```
 
 ### 正式使用webpack
@@ -90,7 +90,134 @@ webpack {entry file} {destination for bundle file}
 
 指定入口文件后,webpack将自动识别项目所依赖的其他文件,不过需要注意的是如果你的webpack不是全局安装,那么当你在终端中使用此命令时,需要额外指定其在node_modules中的地址,继续上面的例子,在终端输入命令
 ```javascript
-# webpack非全局安装的情况
-node_moduls/.bin/webpack app/main.js
+# webpack非全局安装的情况(会在dist文件下自动生成main.js合并文件)
+node_moduls/.bin/webpack app/main.js  
+```
+可以看出`webpack`同时编译了main.js和creeter.js,打开index.html,可以看到结果
+![微信截图_20180330153644](/assets/微信截图_20180330153644_me5jr3gr9.png)
+
+这样就成功使用webpack打包好一个文件.不过在终端进行复杂的操作,其实不是太方便并且容易出错,接下来看看webpack的另一种更常见的使用方法.
+
+### 通过配置文件类使用`webpack`
+webpack拥有许多其他的比较高级的功能(比如后文会介绍的`loaders`和`plugins`),这些功能其实都可以通过命令行模式实现,但是正如前面提到的,这样不太方便且容易出错,更好的办法是定义一个配置文件,这个文件其实也是一个简单的JavaScript模块,我们可以把所有的与打包相关的信息放在里面.
+
+继续上面的例子来说明如何写这个配置文件,在当前练习文件夹的根目录下新建一个名为`webpack.config.js`的文件,我们在其中写入如下所示的简单配置代码,目前的配置主要涉及到的内容是入口文件路径和打包后文件的存放路径.
+```javascript
+const path = require('path')   //引入path模块,否则会报错
+module.exports = {
+  entry : './app/main.js', //这是唯一入口文件,与webpack.config.js的相对路径
+  output: {
+    path: path.resolve(__dirname,'dist'), //打包后的文件存放的地方
+    filename:  "bundle.js"  //打包后输出文件的文件名
+  }
+}
+```
+> 注意: "__dirname"是node.js中的一个全局变量,它指向执行脚本所在的文件目录
+
+有了这个配置后,再打包文件,只需在终端里运行webpack(非全局安装需使用node_modules/.bin/webpack)命令就可以了,这条命令会自动引用`webpack.config.js`文件中的配置选项,实例如下:
+![微信截图_20180330174012](/assets/微信截图_20180330174012.png)
+
+右学会一种`webpack`的方法,这种方法不要管那烦人的命令行参数,感觉非常爽.如果我们可以连`webpack(非全局安装需使用node_module/.bin/webpack)`这条命令都可以不要,那感觉岂不是更爽,继续看下文.
+
+### 更快捷的执行打包任务
+在命令行输入命令需要代码类似于`node_modules/.bin/webpack`这样的路径其实是比较麻烦的,不过值得庆幸的是`npm`可以引导任务执行,对`npm`进行配置后可以在命令行中使用简单的`npm start`命令来替代上面略微繁琐的命令.在`package.json`中对`script`对象进行相关设置即可,设置方法如下:
+```
+{
+  "name": "webpack-sample-project",
+  "version": "1.0.0",
+  "description": "Sample webpack project",
+  "scripts": {
+    "start": "webpack" // 修改的是这里，JSON文件不支持注释，引用时请清除
+  },
+  "author": "zhang",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "3.10.0"
+  }
+}
+```
+> 注意: `package.json`中的`scripts`会按照一定顺序寻找命令对应位置,本地的`node_modules/.bin`路径就在这个寻找清单中,它会优先在本项目文件目录node_modules里寻找webpack程序,如果找不到会一直逐级找到user根目录,所以无论是全局还是局部安装的webpack,你都不需要写前面那种指明详细的路径了.
+
+npm的`start`命令是一个特殊的脚本名称,其特殊性表现在,在命令行中使用`npm satrt`就可以执行其对应的命令,如果对应此的脚本名称不是`start`,想要在命令行中运行时,需要使用`npm run{scripts name}`如`npm run build`,此处我们在命令行输入: `npm start`
+![微信截图_20180330183927](/assets/微信截图_20180330183927.png)
+
+现在只需要使用`npm start`就可以打包文件了,有没有觉得`webpack`也不过如此嘛,不过不要小瞧它,要充分发挥其强大的功能我们需要修改配置文件的其它选项,一项项来看.
+
+### webpack的强大功能
+生成Source Maps(使调试更容易)
+开发总是离不开调试,方便的调试能极大的提高开发效率,不过有时候通过打包后的文件,你是不容易知道错了的地方,对应的你写的代码的位置的,`source maps`就是来帮我们解决这个问题的.
+
+通过简单的配置,`webpack`就可以在打包时为我们生成`source maps`,这为我们提供了一种对应编译文件和源文件的方法,使得编译后的代码可读性更高,也更容易调试.
+
+在`webpack`的配置文件中配置`source maps`,需要配置`devtool`,它有以下四种不同的配置选项,各具缺点,描述如下:
+devtool| 配置结果
+---|---
+`source-map`|在一个单独的文件中产生一个完整且功能完全的文件,这个文件具有最好的`source map`,但是他会减慢打包速度
+`cheap-module-source-map`|在一个单独的文件中生成一个不带列映射的`map`,不带列映射提高了打包速度,但是也使得浏览器开发者工具只能对应到具体的行,不能对应到具体的列(符号),会对调试造成不便
+`eval-source-map`|使用`eval`打包源文件模块,在同一个文件中生成干净完整的`source map`.这个选项可以在不影响构建速度的前提下生成完整的`source map`,但是对打包后输出的js文件的执行具有性能和安全的隐患,在开发阶段这是一个非常好的选项,在生成阶段则一定不要启用这个选项,
+`cheap-module-eval-source-map`|这是在打包文件是最快的生成`source map`的方法,生成的`source map`回合打包后的js文件同行显示,没有列映射,和`eval-source-map`选项具有相似的缺点
+
+正如上表所述,由上到下打包速度越来越快,不过也具有越来越多的负面作用,较快的打包速度的后果就是对打包后的文件的执行有一定的影响.
+
+
+对小到中型的项目中,`eval-source-map`是一个很好的选项,再次强调你只应该在开发阶段使用它,我们继续对上文新建的`webpack.config.js`,进行如下的配置:
+```javascript
+const path = require('path')
+module.exports = {
+  devtool: 'eval-source-map',
+  entry: './app/main.js',
+  output: {
+    path: path.resolve(__dirname,'dist'),
+    filename: 'bundle.js'
+  }
+}
+```
+> `cheap-module-eval-source-map`方法构建速度更快,但是不利于调试,推荐大型项目考虑时间成本时使用.
+
+
+### 使用webpack构建本地服务器
+想不想让你的浏览器监听你的代码的修改,并自动刷新显示修改后的结果,其实`webpack`提供一个可选的本地开发服务器,这个本地服务器基于node.js构建,可以实现你想要的这些功能,不过他是一个单独的组件,在webpack中进行配置之前需要单独安装它作为项目依赖
+```npm install --save-dev webpack-dev-server```
+devserver作为webpack配置选项中的一项,以下是它的一些配置选项,更多配置参考[这里](https://link.jianshu.com/?t=https://webpack.js.org/configuration/dev-server/)
+devserve的配置选项|功能描述
+---|---
+contentBase|默认webpack-dev-server会为根文件夹提供本地服务器，如果想为另外一个目录下的文件提供本地服务器，应该在这里设置其所在目录（本例设置到“dist"目录）
+port|设置默认监听端口，如果省略，默认为”8080“
+inline|设置为true，当源文件改变时会自动刷新页面
+historyApiFallback|在开发单页应用时非常有用，它依赖于HTML5 history API，如果设置为true，所有的跳转将指向index.html
+
+把这些命令加到webpack的配置文件中,现在的配置文件`webpack.config.js`如下所示
+```javascript
+const path = require('path')
+module.exports = {
+  devtool: 'eval-source-map',
+  entry: './app/main.js',
+  output: {
+    path: path.resolve(__dirname,'dist'),
+    filename: 'bundle'
+  },
+  devServer: {
+    contentBase: './dist',  //本地服务器所加载的页面所在的页面
+    historyApiFallback: true, //跳转到html
+    inline: true //实时刷新
+  }
+}
 ```
 
+在`package.json`中的`scripts`对象中添加如下命令,用以开启本地服务器:
+```json
+"scripts" {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "start": "webpack",
+  "server": "webpack-dev-server --open"
+}
+```
+
+在终端输入`npm run server`即可在本地`8080`端口查看结果
+![开启本地服务器](/assets/微信截图_20180330201132.png)
+
+### Loaders
+#### 鼎鼎大名的loaders登场!
+`loaders`是`webpack`提供的最激动人心的功能之一了,通过使用不同的`loader`,`webpack`有能力调用外部的脚本或工具,实现对不同格式的文件的处理,比如说分析转换scss为css,或把下一代的js文件(ES6 ES7)转换为现代兼容浏览器的js文件,对React的开发而言,合适的Loaders可以把React中用到的JSX文件转换为js文件
+
+loaders需要单独安装并且需要在`webpack.config.js`中的modules关键字下进行配置,Loaders的配置包括以下几个方面: 

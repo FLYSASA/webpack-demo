@@ -4,13 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack",
+    "server": "webpack-dev-server --open"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "webpack": "^4.4.1",
-    "webpack-cli": "^2.0.13"
+    "webpack-cli": "^2.0.13",
+    "webpack-dev-server": "^3.1.1"
   }
 }
