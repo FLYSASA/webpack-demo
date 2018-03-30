@@ -12,9 +12,9 @@ module.exports = {
   output: {
     //导出目录
   	path: path.resolve(__dirname, 'uuudist'),
-    publicPath: "/output/uuudist/", // server-relative
+    publicPath: "/output/uuudist/", // server-relative  异步加载前缀
   	//包规范格式
-  	libraryTarget:'umd',
+  	libraryTarget:'umd',  
   	library: "MyLibrary", 
     //文件名
   	chunkFilename:'[chunkhash]_[name].js',
