@@ -453,3 +453,35 @@ module.exports = {
   }
 }
 ```
+我们在app文件夹中创建一个`greeter.css`文件来进行测试
+```CSS
+/* Greeter.css */
+.root {
+  background-color: #eee;
+  padding: 10px;
+  border: 3px solid #ccc;
+}
+```
+导入`.root`到greeter.js中
+```js
+import React, {Component} from 'react';
+import config from './config.json';
+import styles from './Greeter.css';//导入
+
+class Greeter extends Component{
+  render() {
+    return (
+      <div className={styles.root}> //使用cssModule添加类名的方法
+        {config.greetText}
+      </div>
+    );
+  }
+}
+
+export default Greeter
+
+```
+相同的类名也不会造成不同组件之间的污染。
+![微信截图_20180331005450](/assets/微信截图_20180331005450.png)
+
+CSS modules 也是一个很大的主题，有兴趣的话可以去其[官方文档](https://link.jianshu.com/?t=https://github.com/css-modules/css-modules)了解更多。

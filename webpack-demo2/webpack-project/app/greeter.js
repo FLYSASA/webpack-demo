@@ -15,13 +15,14 @@
 //   return greet
 // }
 
-import React, {Component} from 'react'
+import React, {Component} from 'react';
 import config from './config.json';
+import styles from './greeter.css';  //导入
 
 class Greeter extends Component{
   render() {
-    return (
-      <div>
+    return (                              //styles.root使用cssModule添加类名的方法
+      <div className={styles.root}>  
         {config.greetText}
       </div>
     );
