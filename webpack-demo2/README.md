@@ -13,6 +13,7 @@ webpack可以看做是模块打包机:它做的事情,分析你的项目结构,�
 webpack的工作方式是: 把你的项目当做一个整体,通过一个给定的主文件(如index.js),webpack将从这个文件开始找到你的项目的所有依赖文件,使用loaders处理它们,最后打包为一个()或多个浏览器可识别的JavaScript文件.
 ![](https://upload-images.jianshu.io/upload_images/1031000-160bc667d3b6093a.png?imageMogr2/auto-orient/)
 
+
 ### 开始使用webpack
 #### 安装
 webpack可以使用npm安装,新建一个空练习文件夹(命名webpack-project),在终端中转到该文件夹目录,执行下述指令就可以完成安装:
@@ -94,7 +95,8 @@ webpack {entry file} {destination for bundle file}
 node_moduls/.bin/webpack app/main.js  
 ```
 可以看出`webpack`同时编译了main.js和creeter.js,打开index.html,可以看到结果
-![微信截图_20180330153644](/assets/微信截图_20180330153644_me5jr3gr9.png)
+
+![](https://i.loli.net/2018/03/31/5abf4e4eb922c.png)
 
 这样就成功使用webpack打包好一个文件.不过在终端进行复杂的操作,其实不是太方便并且容易出错,接下来看看webpack的另一种更常见的使用方法.
 
@@ -115,7 +117,7 @@ module.exports = {
 > 注意: "__dirname"是node.js中的一个全局变量,它指向执行脚本所在的文件目录
 
 有了这个配置后,再打包文件,只需在终端里运行webpack(非全局安装需使用node_modules/.bin/webpack)命令就可以了,这条命令会自动引用`webpack.config.js`文件中的配置选项,实例如下:
-![微信截图_20180330174012](/assets/微信截图_20180330174012.png)
+![](https://i.loli.net/2018/03/31/5abf4e3014d4d.png)
 
 右学会一种`webpack`的方法,这种方法不要管那烦人的命令行参数,感觉非常爽.如果我们可以连`webpack(非全局安装需使用node_module/.bin/webpack)`这条命令都可以不要,那感觉岂不是更爽,继续看下文.
 
@@ -139,7 +141,7 @@ module.exports = {
 > 注意: `package.json`中的`scripts`会按照一定顺序寻找命令对应位置,本地的`node_modules/.bin`路径就在这个寻找清单中,它会优先在本项目文件目录node_modules里寻找webpack程序,如果找不到会一直逐级找到user根目录,所以无论是全局还是局部安装的webpack,你都不需要写前面那种指明详细的路径了.
 
 npm的`start`命令是一个特殊的脚本名称,其特殊性表现在,在命令行中使用`npm satrt`就可以执行其对应的命令,如果对应此的脚本名称不是`start`,想要在命令行中运行时,需要使用`npm run{scripts name}`如`npm run build`,此处我们在命令行输入: `npm start`
-![微信截图_20180330183927](/assets/微信截图_20180330183927.png)
+![](https://i.loli.net/2018/03/31/5abf4e0cc7a85.png)
 
 现在只需要使用`npm start`就可以打包文件了,有没有觉得`webpack`也不过如此嘛,不过不要小瞧它,要充分发挥其强大的功能我们需要修改配置文件的其它选项,一项项来看.
 
@@ -214,8 +216,7 @@ module.exports = {
 ```
 
 在终端输入`npm run server`即可在本地`8080`端口查看结果
-![开启本地服务器](/assets/微信截图_20180330201132.png)
-
+![开启本地服务器](https://i.loli.net/2018/03/31/5abf4deb12e36.png)
 ### Loaders
 #### 鼎鼎大名的loaders登场!
 `loaders`是`webpack`提供的最激动人心的功能之一了,通过使用不同的`loader`,`webpack`有能力调用外部的脚本或工具,实现对不同格式的文件的处理,比如说分析转换scss为css,或把下一代的js文件(ES6 ES7)转换为现代兼容浏览器的js文件,对React的开发而言,合适的Loaders可以把React中用到的JSX文件转换为js文件
@@ -482,7 +483,7 @@ export default Greeter
 
 ```
 相同的类名也不会造成不同组件之间的污染。
-![微信截图_20180331005450](/assets/微信截图_20180331005450.png)
+![](https://i.loli.net/2018/03/31/5abf4dad49768.png)
 
 CSS modules 也是一个很大的主题，有兴趣的话可以去其[官方文档](https://link.jianshu.com/?t=https://github.com/css-modules/css-modules)了解更多。
 
@@ -558,8 +559,7 @@ module.exports = {
 }
 ```
 通过这个插件,打包后的js文件显示如下
-![微信截图_20180331091907](/assets/微信截图_20180331091907.png)
-
+![](https://i.loli.net/2018/03/31/5abf4d8c42b62.png)
 这就是webpack插件的基础用法了，下面给大家推荐几个常用的插件
 
 ### HtmlWebpackPlugin
@@ -618,7 +618,7 @@ module.exports = {
 }
 ```
 再次执行会发现,`build`文件夹下面生成了`bundle.js`和`index.html`.
-![微信截图_20180331095031](/assets/微信截图_20180331095031.png)
+![](https://i.loli.net/2018/03/31/5abf4d651697b.png)
 
 ### Hot Module Replacement
 `Hot Module Replacement`(HMR)也是webpack内置的很有用的一个插件,它允许你在修改组件代码后,自动刷新实时预览修改后的效果
@@ -719,5 +719,213 @@ npm install --save-dev babel-plugin-react-transform react-transform-hmr
 现在当你使用React时,可以热加载模块了,每次保存就能在浏览器上看到更新内容.
 
 ### 产品阶段的构建
+到目前为止,我们已经使用webpack构建了一个完整的开发环境.但是在产品阶段,可能还需要对打包的文件进行额外的处理,比如优化,压缩,缓存以及分离css和js.
+
+对于复杂的项目来说,需要复杂的配置,这时候分离配置文件为多个小的的文件可以使得事情井井有条,以上面的例子来说,我们创建一个`webpack.production.config.js`的文件,在里面加上接班的配置,他和原始的`webpack.config.js`很像,如下:
+```js
+//webpack.production.config.js
+const path = require('path')
+const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+module.exports = {
+  devtool: 'eval-source-map',
+  entry: './app/main.js',
+  output: {
+    path: path.resolve(__dirname,'build'),  //绝对路径
+    filename: 'bundle.js'
+  },
+  devServer: {
+    contentBase: "./build",//本地服务器所加载的页面所在的目录
+    historyApiFallback: true,//不跳转
+    inline: true//实时刷新    
+  },
+  module: {
+    rules: [
+      {test: /(\.jsx|\.js)$/,use:'babel-loader',exclude:/node_modules/},
+      {test: /\.css$/,use:[{loader:'style-loader'},{loader: 'css-loader',options:{modules: true}},{loader: 'postcss-loader'}]}
+    ]
+  },
+  plugins: [
+    new webpack.BannerPlugin('版权所有,翻版必究'),    //new数组实例
+    new HtmlWebpackPlugin({
+      template: __dirname + "/app/index.tmpl.html"
+    }),
+    new webpack.HotModuleReplacementPlugin()//热加载插件
+  ]
+}
+
+```
+```json
+//package.json
+{
+  "name": "webpack-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack",
+    "server": "webpack-dev-server --open",
+    "build": "NODE_ENV=production webpack --config ./webpack.production.config.js --progress" //设置配置文件为webpack.production.config.js
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^8.2.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-react-transform": "^3.0.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.11",
+    "html-webpack-plugin": "^3.1.0",
+    "postcss-loader": "^2.1.3",
+    "react-transform-hmr": "^1.0.4",
+    "style-loader": "^0.20.3",
+    "webpack": "^4.4.1",
+    "webpack-cli": "^2.0.13",
+    "webpack-dev-server": "^3.1.1"
+  },
+  "dependencies": {
+    "react": "^16.3.0",
+    "react-dom": "^16.3.0"
+  }
+}
+
+```
+> 注意:如果是window电脑,`build`需要配置为`"build": "set NODE_ENV=production && webpack --config ./webpack.production.config.js --progress"`
+
+### 优化插件:
+webpack提供了一些在发布阶段非常有用的优化插件,它们大多来自于webpack社区,可以通过`npm`安装,通过以下插件可以完成产品发布阶段所需的功能
+- `OccurenceOrderPlugin` : 通过模块调用次数给模块分配ids，常用的ids就会分配更短的id，使ids可预测，减小文件大小，推荐使用
+- `ExtractTextPlugin` : 分离css和js文件,webpack 4已经无法使用,需要`npm install --save-dev extract-text-webpack-plugin@next`下载新版
+
+
+
+我们继续用例子来看看如何添加它们,`OccurenceOrderPlugin`和`uglifyJsPlugin`都是内置插件,你需要做的只是按照其它非内置插件
+`npm install --save-dev extract-text-webpack-plugin@next`
+在配置文件的plugins后面引用它们
+```js
+const path = require('path')
+const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+module.exports = {
+  mode: 'production',
+  devtool: 'null',             //注意修改了这里,这能大大压缩我们的打包代码
+  entry: './app/main.js',
+  output: {
+    path: path.resolve(__dirname,'build'),  //绝对路径
+    filename: 'bundle.js'
+  },
+  devServer: {
+    contentBase: "./build",//本地服务器所加载的页面所在的目录
+    historyApiFallback: true,//不跳转
+    inline: true, //实时刷新    
+    hot: true
+  },
+  module: {
+    rules: [
+      {test: /(\.jsx|\.js)$/,use:'babel-loader',exclude:/node_modules/},
+      {test: /\.css$/,use:[{loader:'style-loader'},{loader: 'css-loader',options:{modules: true}},{loader: 'postcss-loader'}]}
+    ]
+  },
+  plugins: [
+    new webpack.BannerPlugin('版权所有,翻版必究'),    //new数组实例
+    new HtmlWebpackPlugin({
+      template: __dirname + "/app/index.tmpl.html"
+    }),
+    new webpack.HotModuleReplacementPlugin(),//热加载插件
+    new ExtractTextPlugin('style.css')
+  ]
+}
+```
+执行`npm run build`
+被压缩的代码:
+![被压缩的代码](https://i.loli.net/2018/03/31/5abf4d3a3c4ad.png)
+另外需要注意的是webpack 4已经移除了webpack内置的`webpack.optimize.UglifyJsPlugin()`压缩js的插件,在webpack4中,在默认的development模式中,webpack打包的时候不会压缩js,在production模式下,会自动压缩.
+另外可以直接用`webpack -p`指令在开发模式下压缩js.
+两个mode的区别:production不支持监听,侧重于打包后的文件大小,development侧重于构建的速度.如果想
+更改模式如下:
+```js
+//webpack.config.js
+module.exports = {
+  mode: "production",
+  //...
+}
+```
+
+
+### 缓存
+缓存无处不在,使用缓存的最好方法时保证你的文件名和文件内容是匹配的(内容变,名称相应改变)
+这样做的作用是: 防止页面内容更改,如果文件名字没变,客户端走缓存,无法展示新的内容.
+
+webpack可以把一个哈希值添加打包到文件名中,使用方法如下,添加特殊的字符串混合体,
+如[name],[id]and[hash]到输出文件名前
+```js
+const path = require('path')
+const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+
+module.exports = {
+  mode: 'production',
+  devtool: 'null',             //注意修改了这里,这能大大压缩我们的打包代码
+  entry: './app/main.js',
+  output: {
+    path: path.resolve(__dirname,'build'),  //绝对路径
+    filename: 'bundle-[hash].js'
+  },
+  devServer: {
+    contentBase: "./build",//本地服务器所加载的页面所在的目录
+    historyApiFallback: true,//不跳转
+    inline: true, //实时刷新    
+    hot: true
+  },
+  module: {
+    rules: [
+      {test: /(\.jsx|\.js)$/,use:'babel-loader',exclude:/node_modules/},
+      {test: /\.css$/,use:[{loader:'style-loader'},{loader: 'css-loader',options:{modules: true}},{loader: 'postcss-loader'}]}
+    ]
+  },
+  plugins: [
+    new webpack.BannerPlugin('版权所有,翻版必究'),    //new数组实例
+    new HtmlWebpackPlugin({
+      template: __dirname + "/app/index.tmpl.html"
+    }),
+    new webpack.HotModuleReplacementPlugin(),//热加载插件
+    new ExtractTextPlugin('style.css')      //分离css
+  ]
+}
+```
+![hash成功](https://i.loli.net/2018/03/31/5abf4d0c1a4d9.png)
+
+#### 去除`build`文件中的残余文件
+添加了`hash`之后,会导致改变文件内容后重新打包时,文件名不同而内容越来越越多,因此这里介绍另外一个很好用的插件`clean-webpack-plugin`
+
+安装: `npm install --save-dev clean-webpack-plugin `
+
+使用: 
+引入`clean-webpack-plugin`插件后在配置文件的`plugins`中做相应的配置即可:
+```js
+const CleanWebpackPlugin = require('clean-webpack-plugin')
+
+plugins: [
+  ..//这里是之前配置的其他各种插件
+  new CleanWebpackPlugin('build/*.*',{
+    root: __dirname,
+    verbose: true,  //将日志写入控制台
+    dry: false
+  })
+]
+```
+关于`clean-webpack-plugin`的详细使用可参考[这里](https://link.jianshu.com/?t=https://github.com/johnagan/clean-webpack-plugin)
+
+
+
+--------
+以上基于`webpack 4.0以上版本`
+
 
 
