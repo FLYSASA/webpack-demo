@@ -42,7 +42,9 @@ npm install --save-dev webpack
 - index.html --放在dest文件夹中
 - Greeter.js --放在app文件夹中
 - main.js --放在app文件夹中
+
 项目结构如图所示:
+
 ![](https://upload-images.jianshu.io/upload_images/1031000-976ba1a06fd0702f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/347)
 
 我们在index.html文件中写入最基础的html代码,它在这里的目的在于引入打包后的js文件(这里我们先把打包后的js文件命名为main.js)
