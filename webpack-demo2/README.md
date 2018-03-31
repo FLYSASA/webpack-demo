@@ -485,3 +485,239 @@ export default Greeter
 ![微信截图_20180331005450](/assets/微信截图_20180331005450.png)
 
 CSS modules 也是一个很大的主题，有兴趣的话可以去其[官方文档](https://link.jianshu.com/?t=https://github.com/css-modules/css-modules)了解更多。
+
+### css预处理器
+`sass`和`less`之类的预处理器是对原生css的拓展,他们允许你使用类似`variables`,`nesting`,`mixins`,`inheritance`等不存在css中的特性来写css,css预处理器可以让这些特殊类型的语句转化为浏览器可识别的css语句.
+
+你现在可能已经熟悉了,在webpack里使用相关loaders进行配置就可以使用了,以下是常用的css处理`loaders`:
+- `less-loader`
+- `sass-loader`
+- `style-loader`
+不过其实也存在一个css处理平台`postcss`,它可以帮助你的css实现更多的功能,在其[官方文档](https://link.jianshu.com/?t=https://github.com/postcss/postcss)可料及而更多相关知识.
+
+举例来说明`postcss`,我们使用`postcss`来为css代码自动添加适应不同刘拉你的css前缀.
+
+首先安装`postcss-loader`和`autoprefixer`(自动添加前缀的插件)
+
+```npm install --save-dev postcss-loader autoprefixer```
+接下来,在webpack配置文件中添加`postcss-loader`,在根目录新建`postcss.config.js`,并添加如下代码之后,重新使用`npm start`打包时,你写的css会自动根据can i use里的数据添加不同前缀了
+```js
+//webpack.config.js
+const path = require('path')
+module.exports = {
+  devfool: 'eval-source-map',
+  entry: './app/main.js',
+  output: {
+    path: path.resolve(__dirname,'dist'),
+    filename: 'bundle.js'
+  },
+   devServer: {
+    contentBase: "./public",//本地服务器所加载的页面所在的目录
+    historyApiFallback: true,//不跳转
+    inline: true//实时刷新    
+  },
+  module: {
+    rules: [
+      {test: /(\.jsx|\.js)$/,use:'babel-loader',exclude:/node_modules/},
+      {test: /\.css$/,use:[{loader:'style-loader'},{loader: 'css-loader',options:{modules: true}},{loader: 'postcss-loader'}]}
+
+    ]
+  }
+}
+```
+至此,本文已经谈论了处理JS的`babel`和处理css的`postcss`的基本用法,它们其实也是两个单独的平台,配合`webpack`可以很好的发挥它们的作用.接下来介绍webpack中另一个非常重要的功能`plugins`
+
+### 插件(plugins)
+
+插件(plugins)是用来拓展webpack功能的,它们会在整个构建过程中生效,执行相关的任务.
+loaders和plugins常常被弄混,但是它们其实是完全不同的东西,可以这么来说,loaders是在打包构建过程中用来处理源文件的(JSX,scss,less...),一次处理一个,插件并不直接操作单个文件,它直接对整个构建过程起作用.
+
+webpack有很多内置插件,同时也有很多第三方插件,可以让我们完成更加丰富的功能.
+
+### 使用插件的方法
+要使用某个插件,我们需要通过`npm`安装它,然后要做的就是在webpack配置中的plugins关键字部分添加该插件的一个实例(plugins是一个数组)继续上面的例子,我们添加了一个给打包后[代码添加版权声明的插件](https://link.jianshu.com/?t=https://webpack.js.org/plugins/banner-plugin/)(这个插件是webpack内置的)
+```js
+const path = require('path')    
+const webpack = require('webpack')   //在使用之前记得声明webpack
+module.exports = {
+  devfool: 'eval-source-map',
+  entry: './app/main.js',
+  output: {
+    path: path.resolve(__dirname,'dist'),
+    filename: 'bundle.js'
+  },
+  module: {
+    rules: [
+      {test:\\,use:'babel-loader',exclude:/node_modules/},
+      {test:\\,use:[{loader:'style-loader'},{loader:'css-loader',options:{modules: true}},{loader:"postcss-loader"}]}
+    ]
+  },
+  plugins: [    //数组
+    new webpack.BannerPlugin('版权所有,盗版必究')
+  ]
+}
+```
+通过这个插件,打包后的js文件显示如下
+![微信截图_20180331091907](/assets/微信截图_20180331091907.png)
+
+这就是webpack插件的基础用法了，下面给大家推荐几个常用的插件
+
+### HtmlWebpackPlugin
+这个插件的作用是依据一个简单的`index.html`模板,生成一个自动引用你打包后的js文件的新`index.html`.这在每次生成的js文件名称不同时非常有用(比如添加了`hash`值)
+
+##### 安装
+```npm install --save-dev html-webpack-plugin```
+这个插件自动完成了我们之前动手做的一些事情,在正式使用之前需要对一直以来的项目结构做一些更改:
+1. 移除dist文件夹,利用此插件,`index.html`文件会自动生成,此外css已经通过前面的操作打包到js中了.
+2. 在app目录下,创建一个`index.tmpl,html`文件模板.这个模板包含`title`等必须元素,在编译过程中,插件会依据此模板生成最终的html页面,会自动添加所依赖的css,js,favicon等文件,`index.tmpl.html`中的模板源代码如下:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Webpack Sample Project</title>
+  </head>
+  <body>
+    <div id='root'>
+    </div>
+  </body>
+</html>
+```
+因为会自动引入css,js等所以不需要再加入link,script标签
+3. 更新webpack的配置文件,方法同上,新建一个`build`文件夹来存放最终的输出文件
+
+```javascript
+const webpack = require('webpack')
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')  //引入外部插件需要声明
+module.exports = {
+  devfool: 'eval-source-map',
+  entry: './app/main.js',
+  output: {
+    path: path.resolve(__dirname,'build'),
+    filename: 'bundle.js'
+  },
+  devServer: {
+    contentBase: "./build",//本地服务器所加载的页面所在的目录
+    historyApiFallback: true,//不跳转
+    inline: true//实时刷新
+  },
+  module:{
+    rules: [
+      {test: /(\.jsx|\.js)$/,use: {'babel-loader'},exclude: /node_modules/},
+      {test: /\.css$/,use: {loader: 'style-loader'},{loader: 'css-loader',options:{modules: true}},{loader: 'postcss-loader'}}
+    ]
+  },
+  plugins: [
+    new webpack.BannerPlugin('版权所有,翻版必究')
+    new HtmlWebpackPlugin({   //new一个这个插件的实例，并传入相关的参数
+      template: __dirname + "/app/index.tmpl.html"  
+    })
+  ]
+}
+```
+再次执行会发现,`build`文件夹下面生成了`bundle.js`和`index.html`.
+![微信截图_20180331095031](/assets/微信截图_20180331095031.png)
+
+### Hot Module Replacement
+`Hot Module Replacement`(HMR)也是webpack内置的很有用的一个插件,它允许你在修改组件代码后,自动刷新实时预览修改后的效果
+
+在webpack中实现HMR也很简单,只需要两项配置:
+1. 在webpack配置文件中添加HMP插件
+2. 在webpack devServer中添加'hot'参数
+
+不过配置完这些后,js模块其实还是不能自动热加载的,还需要在你的js模块中执行一个webpack提供的API才能实现热加载,虽然API不难使用,但是如果是React模块,使用我们熟悉的Babel可以更方便的实现功能热加载
+
+整理下我们的思路,具体实现方法如下
+- `babel`和`webpack`是独立的工具
+- 二者可以一起工作
+- 二者都可以通过插件扩展功能
+- HMR是一个webpack插件,它让你能在浏览器中实时观察模块修改后的效果,但是如果你想让他工作,需要对模块进行额外的配额
+- babel有一个叫做`react-transform-hrm`的插件,可以在不对React模块进行额外配置的前提下让HMR正常工作
+
+还是继续上例来实际看看如何配置:
+```js
+const webpack = require('webpack');
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+    entry: './app/main.js', //已多次提及的唯一入口文件
+    output: {
+        path: path.resolve(__dirnamem,'dist'),
+        filename: "bundle.js"
+    },
+    devtool: 'eval-source-map',
+    devServer: {
+        contentBase: "./public",//本地服务器所加载的页面所在的目录
+        historyApiFallback: true,//不跳转
+        inline: true,       
+        hot: true               //webpack devServer中添加'hot'参数
+    },
+    module: {
+        rules: [
+            {
+                test: /(\.jsx|\.js)$/,
+                use: {
+                    loader: "babel-loader"
+                },
+                exclude: /node_modules/
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    {
+                        loader: "style-loader"
+                    }, {
+                        loader: "css-loader",
+                        options: {
+                            modules: true
+                        }
+                    }, {
+                        loader: "postcss-loader"
+                    }
+                ]
+            }
+        ]
+    },
+    plugins: [
+      new webpack.BannerPlugin('版权所有,翻版必究'),
+      new HtmlWebpackPlugin({
+        template: __dirname + "/app/index.tmpl.html" 
+      }),
+      new webpack.HotModuleReplacementPlugin() //热加载插件
+    ]
+}
+```
+安装`react-transform-hmr`
+
+```
+npm install --save-dev babel-plugin-react-transform react-transform-hmr
+```
+
+配置babel:
+```json
+//.babelrc
+{
+    "presets": ["react", "env"],
+    "env": {
+        "development": {
+            "plugins": [["react-transform", {
+                "transforms": [{
+                    "transform": "react-transform-hmr",
+                    
+                    "imports": ["react"],
+                    
+                    "locals": ["module"]
+                }]
+            }]]
+        }
+    }
+}
+```
+现在当你使用React时,可以热加载模块了,每次保存就能在浏览器上看到更新内容.
+
+### 产品阶段的构建
+
+
